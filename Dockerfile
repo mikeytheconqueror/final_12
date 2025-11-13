@@ -1,16 +1,12 @@
-FROM golang:1.25
+FROM golang:1.21-alpine AS builder
 
 WORKDIR /app
-
-COPY go.mod ./
-COPY *.go ./
-
-RUN go build -o /parcel-tracker
+COPY . .
+RUN go mod init parcel-tracker
+RUN go mod tidy
+RUN CGO_ENABLED=0 go build -o /parcel-tracker
 
 FROM alpine:latest
-
 WORKDIR /root/
-
 COPY --from=builder /parcel-tracker .
-
 CMD ["./parcel-tracker"]
